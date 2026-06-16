@@ -690,6 +690,13 @@
                 </div>
 
                 <p style="text-align:center; margin-top: 1.5rem; color: #999; font-size: 0.9rem;">3 free analyses to start · no card required</p>
+
+                <div id="manageSubSection" style="display:none; text-align:center; margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 1rem; border: 2px solid #f0e7fe; max-width: 420px; margin-left: auto; margin-right: auto;">
+                    <p style="color:#4b5563; margin-bottom:1rem; font-size:0.95rem;">Already subscribed? Manage or cancel your plan anytime.</p>
+                    <button class="btn btn-primary" onclick="openCustomerPortal()" style="background: linear-gradient(135deg, #6b7280, #4b5563);">
+                        ⚙️ Manage Subscription
+                    </button>
+                </div>
             </div>
         </section>
     </main>
@@ -761,9 +768,9 @@
         // ====================================================================
         // CONFIG — fill these three in after you deploy (see SETUP.md)
         // ====================================================================
-        const BACKEND_URL  = "https://nudge-app-liart.vercel.app";      // e.g. https://nudge-app.vercel.app
-        const SUPABASE_URL = "https://jhbzquclpjmvdvnkokch.supabase.co";    // e.g. https://abcd.supabase.co
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoYnpxdWNscGptdmR2bmtva2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Mzg1ODUsImV4cCI6MjA5NzExNDU4NX0.y7p69w6DiH11E0pzJjdZ8kPgeeL-JvU671h6imt0JXs";
+        const BACKEND_URL  = "PASTE_YOUR_VERCEL_URL_HERE";      // e.g. https://nudge-app.vercel.app
+        const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";    // e.g. https://abcd.supabase.co
+        const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
         // Create the Supabase client (safe to use the anon key in the browser).
         let sb = null;
@@ -903,11 +910,14 @@
 
         function updateAuthUI() {
             const btn = document.getElementById('authBtn');
+            const manageSection = document.getElementById('manageSubSection');
             if (currentUser) {
                 btn.textContent = currentUser.email.split('@')[0];
                 btn.title = "Click to sign out";
+                if (manageSection) manageSection.style.display = 'block';
             } else {
                 btn.textContent = "Sign in";
+                if (manageSection) manageSection.style.display = 'none';
             }
         }
 
@@ -967,12 +977,45 @@
                 });
                 const data = await resp.json();
                 if (data.url) {
-                    window.location.href = data.url;   // off to Stripe Checkout
+                    window.location.href = data.url;
                 } else {
                     alert(data.error || "Could not start checkout.");
                 }
             } catch (e) {
                 alert("Could not reach checkout. Try again.");
+            }
+        }
+
+        async function openCustomerPortal() {
+            if (!currentUser) {
+                alert("Please sign in first.");
+                openAuth();
+                return;
+            }
+            if (BACKEND_URL.includes("PASTE")) {
+                alert("Backend not connected yet — see SETUP.md.");
+                return;
+            }
+            try {
+                const token = await getToken();
+                const resp = await fetch(BACKEND_URL + "/api/portal", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token,
+                    },
+                    body: JSON.stringify({
+                        siteUrl: window.location.origin + window.location.pathname,
+                    }),
+                });
+                const data = await resp.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert(data.error || "Could not open subscription portal.");
+                }
+            } catch (e) {
+                alert("Could not reach portal. Try again.");
             }
         }
 
