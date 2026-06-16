@@ -330,9 +330,70 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .nav-buttons { gap: 1rem; font-size: 0.9rem; }
-            nav { padding: 1rem; }
+            /* NAV */
+            nav { padding: 0.75rem 1rem; }
+            .nav-content { flex-wrap: wrap; gap: 0.5rem; }
+            .logo span { font-size: 1.1rem; }
+            .nav-buttons { gap: 0.4rem; font-size: 0.78rem; flex-wrap: wrap; justify-content: center; }
+            .nav-btn { padding: 0.4rem 0.6rem; }
+
+            /* HERO */
+            .hero { padding: 2rem 1rem; }
+            h1 { font-size: 2rem; line-height: 1.2; }
+            .subtitle { font-size: 1rem; margin: 1rem auto; }
+            .btn { padding: 0.8rem 1.4rem; font-size: 0.95rem; }
+
+            /* FEATURE CARDS */
+            .features-grid { grid-template-columns: 1fr; gap: 1rem; padding: 0 1rem; }
+            .feature-card { padding: 1.25rem; }
+
+            /* HOW IT WORKS */
+            .how-it-works { padding: 0 1rem; margin: 2rem auto; }
+            .steps-grid { grid-template-columns: 1fr !important; gap: 1rem; }
+
+            /* AUTH */
+            .container { padding: 0.5rem 1rem !important; }
+            .auth-card { padding: 1.5rem 1.25rem; margin-top: 0.5rem; border-radius: 1rem; }
+            .auth-title { font-size: 1.3rem; }
+
+            /* DATING COACH */
+            .coach-content { padding: 1rem; }
+            .upload-section { padding: 1.25rem; border-radius: 1rem; }
+            .gender-buttons { gap: 0.75rem; }
+            .gender-btn { padding: 1rem; font-size: 0.9rem; }
+            .screenshot-grid { grid-template-columns: 1fr 1fr !important; }
+
+            /* RESULTS */
+            .results-grid { grid-template-columns: 1fr !important; }
+            .suggestions-list { gap: 0.75rem; }
+
+            /* PROFILE RATING */
+            .profile-content { padding: 1rem; }
+
+            /* PRICING */
+            .pricing-content { padding: 1rem; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 100%; margin: 1rem 0 0; }
+            .price-card { padding: 1.5rem; }
+            .price-amount { font-size: 2.2rem; }
+
+            /* SECTION TITLES */
+            .section-title { font-size: 1.8rem; }
+            .section-desc { font-size: 0.95rem; padding: 0 0.5rem; }
+
+            /* FOOTER */
+            .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .footer-brand { grid-column: 1; }
+            footer { padding: 2rem 1rem 1.5rem; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .footer-mini-links { gap: 0.75rem; flex-wrap: wrap; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.7rem; }
+            .nav-buttons { font-size: 0.72rem; gap: 0.3rem; }
+            .nav-btn { padding: 0.35rem 0.5rem; }
+            .auth-card { padding: 1.25rem 1rem; }
+            .price-card { padding: 1.25rem; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -768,9 +829,9 @@
         // ====================================================================
         // CONFIG — fill these three in after you deploy (see SETUP.md)
         // ====================================================================
-        const BACKEND_URL  = "https://trynudge.vercel.app";      // e.g. https://nudge-app.vercel.app
-        const SUPABASE_URL = "https://jhbzquclpjmvdvnkokch.supabase.co";    // e.g. https://abcd.supabase.co
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoYnpxdWNscGptdmR2bmtva2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Mzg1ODUsImV4cCI6MjA5NzExNDU4NX0.y7p69w6DiH11E0pzJjdZ8kPgeeL-JvU671h6imt0JXs";
+        const BACKEND_URL  = "PASTE_YOUR_VERCEL_URL_HERE";      // e.g. https://nudge-app.vercel.app
+        const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";    // e.g. https://abcd.supabase.co
+        const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
         // Create the Supabase client (safe to use the anon key in the browser).
         let sb = null;
