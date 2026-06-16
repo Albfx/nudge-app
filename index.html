@@ -56,6 +56,22 @@
         main { margin-top: 80px; min-height: calc(100vh - 80px); }
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.3s; }
+        .auth-card { background: white; border-radius: 1.5rem; padding: 2.5rem 2rem; box-shadow: 0 8px 40px rgba(168,85,247,0.18); margin-top: 2rem; }
+        .auth-tabs { display: flex; gap: 0.5rem; background: #f5f3ff; border-radius: 0.75rem; padding: 0.35rem; margin-bottom: 1.75rem; }
+        .auth-tab { flex: 1; padding: 0.7rem; border: none; background: none; border-radius: 0.55rem; font-size: 1rem; font-weight: 700; color: #9ca3af; cursor: pointer; transition: all 0.2s; }
+        .auth-tab.active { background: white; color: #c026d3; box-shadow: 0 2px 8px rgba(168,85,247,0.15); }
+        .auth-title { font-size: 1.5rem; font-weight: 800; color: #1f2937; margin-bottom: 0.3rem; }
+        .auth-sub { font-size: 0.92rem; color: #6b7280; margin-bottom: 1.5rem; line-height: 1.5; }
+        .auth-label { display: block; font-size: 0.82rem; font-weight: 600; color: #4b5563; margin-bottom: 0.4rem; }
+        .auth-input { width: 100%; padding: 0.8rem 0.9rem; border: 2px solid #e5e7eb; border-radius: 0.6rem; margin-bottom: 1.1rem; font-size: 1rem; box-sizing: border-box; transition: border-color 0.2s; }
+        .auth-input:focus { outline: none; border-color: #a855f7; }
+        .auth-btn { width: 100%; margin-top: 0.25rem; }
+        .auth-forgot { font-size: 0.85rem; color: #a855f7; text-align: center; margin-top: 1rem; cursor: pointer; }
+        .auth-forgot:hover { text-decoration: underline; }
+        .auth-msg { font-size: 0.88rem; text-align: center; margin-top: 1rem; min-height: 1.2em; line-height: 1.4; }
+        .auth-msg.error { color: #dc2626; }
+        .auth-msg.success { color: #16a34a; }
+        .auth-msg.info { color: #a855f7; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* HERO */
@@ -336,16 +352,78 @@
                 <button class="nav-btn" id="authBtn" onclick="openAuth()" style="color:#c026d3;">Sign in</button>
             </div>
         </div>
-        <div id="authModal" style="display:none; position:absolute; top:70px; right:2rem; background:white; border:2px solid #f0e7fe; border-radius:1rem; padding:1.5rem; box-shadow:0 10px 40px rgba(168,85,247,0.2); width:280px; z-index:200;">
-            <h3 style="margin-bottom:0.75rem; color:#333;">Sign in / Sign up</h3>
-            <p style="font-size:0.85rem; color:#888; margin-bottom:1rem;">We'll email you a magic link — no password needed.</p>
-            <input type="email" id="authEmail" placeholder="your@email.com" style="width:100%; padding:0.75rem; border:2px solid #e5e7eb; border-radius:0.5rem; margin-bottom:0.75rem; font-size:1rem;">
-            <button class="btn btn-primary" style="width:100%;" onclick="sendMagicLink()">Email me a link</button>
-            <p id="authMsg" style="font-size:0.85rem; color:#a855f7; margin-top:0.75rem; min-height:1em;"></p>
-        </div>
     </nav>
 
     <main>
+        <!-- AUTH -->
+        <section id="auth" class="section">
+            <div class="container" style="max-width:460px; margin:0 auto; padding-top:1rem;">
+                <div class="auth-card">
+                    <div class="auth-tabs">
+                        <button id="tabSignin" class="auth-tab active" onclick="authMode('signin')">Sign In</button>
+                        <button id="tabSignup" class="auth-tab" onclick="authMode('signup')">Sign Up</button>
+                    </div>
+
+                    <!-- SIGN IN -->
+                    <div id="paneSignin" class="auth-pane">
+                        <h2 class="auth-title">Welcome back</h2>
+                        <p class="auth-sub">Sign in to keep the conversation going.</p>
+                        <label class="auth-label">Email</label>
+                        <input type="email" id="siEmail" class="auth-input" placeholder="your@email.com">
+                        <label class="auth-label">Password</label>
+                        <input type="password" id="siPass" class="auth-input" placeholder="Your password">
+                        <button class="btn btn-primary auth-btn" onclick="doSignIn()">Sign In</button>
+                        <p class="auth-forgot" onclick="authMode('reset')">Forgot password?</p>
+                        <p id="siMsg" class="auth-msg"></p>
+                    </div>
+
+                    <!-- SIGN UP -->
+                    <div id="paneSignup" class="auth-pane" style="display:none;">
+                        <h2 class="auth-title">Create your account</h2>
+                        <p class="auth-sub">Start getting coached in seconds.</p>
+                        <label class="auth-label">Email</label>
+                        <input type="email" id="suEmail" class="auth-input" placeholder="your@email.com">
+                        <label class="auth-label">Password</label>
+                        <input type="password" id="suPass" class="auth-input" placeholder="At least 6 characters">
+                        <button class="btn btn-primary auth-btn" onclick="doSignUp()">Create Account</button>
+                        <p id="suMsg" class="auth-msg"></p>
+                    </div>
+
+                    <!-- VERIFY CODE -->
+                    <div id="paneVerify" class="auth-pane" style="display:none;">
+                        <h2 class="auth-title">Check your email</h2>
+                        <p class="auth-sub">We sent a 6-digit code to <strong id="verifyEmail"></strong>. Enter it below to confirm your account.</p>
+                        <label class="auth-label">Confirmation code</label>
+                        <input type="text" id="vCode" class="auth-input" placeholder="123456" maxlength="6" style="letter-spacing:0.3em; text-align:center; font-size:1.3rem;">
+                        <button class="btn btn-primary auth-btn" onclick="doVerify()">Confirm Account</button>
+                        <p class="auth-forgot" onclick="resendCode()">Didn't get it? Resend code</p>
+                        <p id="vMsg" class="auth-msg"></p>
+                    </div>
+
+                    <!-- RESET REQUEST -->
+                    <div id="paneReset" class="auth-pane" style="display:none;">
+                        <h2 class="auth-title">Reset your password</h2>
+                        <p class="auth-sub">Enter your email and we'll send you a link to set a new password.</p>
+                        <label class="auth-label">Email</label>
+                        <input type="email" id="rEmail" class="auth-input" placeholder="your@email.com">
+                        <button class="btn btn-primary auth-btn" onclick="doReset()">Send Reset Link</button>
+                        <p class="auth-forgot" onclick="authMode('signin')">← Back to sign in</p>
+                        <p id="rMsg" class="auth-msg"></p>
+                    </div>
+
+                    <!-- SET NEW PASSWORD (shown when user returns from reset email) -->
+                    <div id="paneNewPass" class="auth-pane" style="display:none;">
+                        <h2 class="auth-title">Set a new password</h2>
+                        <p class="auth-sub">Almost done — choose a new password.</p>
+                        <label class="auth-label">New password</label>
+                        <input type="password" id="npPass" class="auth-input" placeholder="At least 6 characters">
+                        <button class="btn btn-primary auth-btn" onclick="doNewPass()">Update Password</button>
+                        <p id="npMsg" class="auth-msg"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- HOME -->
         <section id="home" class="section active">
             <div class="hero">
@@ -634,11 +712,11 @@
                 <div class="footer-col">
                     <h4>Company</h4>
                     <ul>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Blog &amp; Resources</a></li>
-                        <li><a href="#">Documentation</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="blog.html">Blog &amp; Resources</a></li>
+                        <li><a href="documentation.html">Documentation</a></li>
                         <li><a href="mailto:support@trynudge.com">Contact</a></li>
-                        <li><a href="#">Status</a></li>
+                        <li><a href="status.html">Status</a></li>
                     </ul>
                 </div>
 
@@ -647,7 +725,7 @@
                     <ul>
                         <li><a href="privacy.html">Privacy Policy</a></li>
                         <li><a href="terms.html">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="cookie-policy.html">Cookie Policy</a></li>
                         <li><a href="acceptable-use.html">Acceptable Use Policy</a></li>
                     </ul>
                 </div>
@@ -655,8 +733,8 @@
                 <div class="footer-col">
                     <h4>Trust &amp; Safety</h4>
                     <ul>
-                        <li><a href="#">Security</a></li>
-                        <li><a href="#">Responsible Disclosure</a></li>
+                        <li><a href="security.html">Security</a></li>
+                        <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
                         <li><a href="mailto:support@trynudge.com">support@trynudge.com</a></li>
                     </ul>
                 </div>
@@ -671,8 +749,8 @@
                     <div class="footer-mini-links">
                         <a href="privacy.html">Privacy</a>
                         <a href="terms.html">Terms</a>
-                        <a href="#">Cookies</a>
-                        <a href="#">Security</a>
+                        <a href="cookie-policy.html">Cookies</a>
+                        <a href="security.html">Security</a>
                     </div>
                 </div>
             </div>
@@ -683,9 +761,9 @@
         // ====================================================================
         // CONFIG — fill these three in after you deploy (see SETUP.md)
         // ====================================================================
-        const BACKEND_URL  = "PASTE_YOUR_VERCEL_URL_HERE";      // e.g. https://nudge-app.vercel.app
-        const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";    // e.g. https://abcd.supabase.co
-        const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+        const BACKEND_URL  = "https://nudge-app-liart.vercel.app";      // e.g. https://nudge-app.vercel.app
+        const SUPABASE_URL = "https://jhbzquclpjmvdvnkokch.supabase.co";    // e.g. https://abcd.supabase.co
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoYnpxdWNscGptdmR2bmtva2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Mzg1ODUsImV4cCI6MjA5NzExNDU4NX0.y7p69w6DiH11E0pzJjdZ8kPgeeL-JvU671h6imt0JXs";
 
         // Create the Supabase client (safe to use the anon key in the browser).
         let sb = null;
@@ -706,29 +784,115 @@
             return { mediaType: match[1], base64: match[2] };
         }
 
-        // ---------- AUTH ----------
+        // ---------- AUTH (email + password, code verification, reset) ----------
         function openAuth() {
             if (currentUser) {
-                // already signed in → offer sign out
                 if (confirm("Sign out of " + currentUser.email + "?")) signOut();
                 return;
             }
-            const m = document.getElementById('authModal');
-            m.style.display = m.style.display === 'none' ? 'block' : 'none';
+            switchTab('auth', null);
+            authMode('signin');
         }
 
-        async function sendMagicLink() {
-            const email = document.getElementById('authEmail').value.trim();
-            const msg = document.getElementById('authMsg');
-            if (!email) { msg.textContent = "Enter your email first."; return; }
-            if (!sb) { msg.textContent = "Sign-in isn't connected yet (see SETUP.md)."; return; }
-            msg.textContent = "Sending...";
-            const { error } = await sb.auth.signInWithOtp({
-                email,
-                options: { emailRedirectTo: window.location.href }
+        function authMode(mode) {
+            const panes = {
+                signin: 'paneSignin', signup: 'paneSignup', verify: 'paneVerify',
+                reset: 'paneReset', newpass: 'paneNewPass'
+            };
+            Object.values(panes).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
             });
-            msg.textContent = error ? ("Error: " + error.message)
-                                    : "Check your email for the sign-in link!";
+            const target = document.getElementById(panes[mode]);
+            if (target) target.style.display = 'block';
+            // tab highlight (only signin/signup have tabs)
+            document.getElementById('tabSignin').classList.toggle('active', mode === 'signin');
+            document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
+        }
+
+        function setMsg(id, text, type) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = 'auth-msg ' + (type || '');
+        }
+
+        let pendingEmail = null;
+
+        function notConnected(msgId) {
+            setMsg(msgId, "Sign-in isn't connected yet (see SETUP.md).", 'error');
+        }
+
+        // SIGN UP — creates account, Supabase emails a 6-digit code
+        async function doSignUp() {
+            const email = document.getElementById('suEmail').value.trim();
+            const pass = document.getElementById('suPass').value;
+            if (!email || !pass) { setMsg('suMsg', "Enter your email and a password.", 'error'); return; }
+            if (pass.length < 6) { setMsg('suMsg', "Password must be at least 6 characters.", 'error'); return; }
+            if (!sb) { notConnected('suMsg'); return; }
+            setMsg('suMsg', "Creating your account...", 'info');
+            const { error } = await sb.auth.signUp({ email, password: pass });
+            if (error) { setMsg('suMsg', error.message, 'error'); return; }
+            pendingEmail = email;
+            document.getElementById('verifyEmail').textContent = email;
+            authMode('verify');
+            setMsg('vMsg', "", '');
+        }
+
+        // VERIFY — confirm the 6-digit code
+        async function doVerify() {
+            const code = document.getElementById('vCode').value.trim();
+            if (!code) { setMsg('vMsg', "Enter the code from your email.", 'error'); return; }
+            if (!sb) { notConnected('vMsg'); return; }
+            setMsg('vMsg', "Confirming...", 'info');
+            const { error } = await sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'signup' });
+            if (error) { setMsg('vMsg', error.message, 'error'); return; }
+            setMsg('vMsg', "Account confirmed! You're in.", 'success');
+            setTimeout(() => switchTab('home', null), 900);
+        }
+
+        async function resendCode() {
+            if (!sb || !pendingEmail) return;
+            setMsg('vMsg', "Resending...", 'info');
+            const { error } = await sb.auth.resend({ type: 'signup', email: pendingEmail });
+            setMsg('vMsg', error ? error.message : "New code sent — check your email.", error ? 'error' : 'success');
+        }
+
+        // SIGN IN — email + password
+        async function doSignIn() {
+            const email = document.getElementById('siEmail').value.trim();
+            const pass = document.getElementById('siPass').value;
+            if (!email || !pass) { setMsg('siMsg', "Enter your email and password.", 'error'); return; }
+            if (!sb) { notConnected('siMsg'); return; }
+            setMsg('siMsg', "Signing in...", 'info');
+            const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+            if (error) { setMsg('siMsg', error.message, 'error'); return; }
+            setMsg('siMsg', "Welcome back!", 'success');
+            setTimeout(() => switchTab('home', null), 700);
+        }
+
+        // RESET — send password reset email
+        async function doReset() {
+            const email = document.getElementById('rEmail').value.trim();
+            if (!email) { setMsg('rMsg', "Enter your email.", 'error'); return; }
+            if (!sb) { notConnected('rMsg'); return; }
+            setMsg('rMsg', "Sending reset link...", 'info');
+            const { error } = await sb.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname
+            });
+            setMsg('rMsg', error ? error.message : "Check your email for the reset link.", error ? 'error' : 'success');
+        }
+
+        // SET NEW PASSWORD — after returning from reset email link
+        async function doNewPass() {
+            const pass = document.getElementById('npPass').value;
+            if (!pass || pass.length < 6) { setMsg('npMsg', "Password must be at least 6 characters.", 'error'); return; }
+            if (!sb) { notConnected('npMsg'); return; }
+            setMsg('npMsg', "Updating...", 'info');
+            const { error } = await sb.auth.updateUser({ password: pass });
+            if (error) { setMsg('npMsg', error.message, 'error'); return; }
+            setMsg('npMsg', "Password updated! You're signed in.", 'success');
+            setTimeout(() => switchTab('home', null), 900);
         }
 
         async function signOut() {
@@ -747,16 +911,20 @@
             }
         }
 
-        // Restore session on load + react to magic-link return.
+        // Restore session on load + handle password-recovery return.
         async function initAuth() {
             if (!sb) return;
             const { data } = await sb.auth.getSession();
             currentUser = data?.session?.user || null;
             updateAuthUI();
-            sb.auth.onAuthStateChange((_event, session) => {
+            sb.auth.onAuthStateChange((event, session) => {
                 currentUser = session?.user || null;
                 updateAuthUI();
-                document.getElementById('authModal').style.display = 'none';
+                // When the user clicks the reset email link, Supabase fires this.
+                if (event === 'PASSWORD_RECOVERY') {
+                    switchTab('auth', null);
+                    authMode('newpass');
+                }
             });
         }
         initAuth();
