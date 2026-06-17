@@ -246,16 +246,31 @@
         .feedback-improve { color: #9a3412; }
 
         .suggestion {
-            background: #faf5ff;
+            background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%);
             border-left: 4px solid #a855f7;
-            padding: 1rem 1.25rem;
-            border-radius: 0 0.75rem 0.75rem 0;
-            margin-bottom: 1rem;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 1rem 1rem 0;
+            margin-bottom: 1.25rem;
             color: #333;
             font-size: 1.05rem;
             line-height: 1.5;
+            position: relative;
+            box-shadow: 0 3px 12px rgba(168,85,247,0.1);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-        .suggestion-label { font-size: 0.85rem; color: #a855f7; font-weight: bold; margin-bottom: 0.25rem; text-transform: uppercase; }
+        .suggestion:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168,85,247,0.18); }
+        .suggestion:nth-child(1) { border-left-color: #ec4899; background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); }
+        .suggestion:nth-child(2) { border-left-color: #a855f7; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); }
+        .suggestion:nth-child(3) { border-left-color: #6366f1; background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); }
+        .suggestion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .suggestion-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        .suggestion:nth-child(1) .suggestion-label { color: #ec4899; }
+        .suggestion:nth-child(2) .suggestion-label { color: #a855f7; }
+        .suggestion:nth-child(3) .suggestion-label { color: #6366f1; }
+        .copy-btn { background: white; border: 1.5px solid #e5e7eb; border-radius: 0.5rem; padding: 0.35rem 0.7rem; font-size: 0.78rem; font-weight: 600; color: #6b7280; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 0.3rem; }
+        .copy-btn:hover { border-color: #a855f7; color: #a855f7; background: #faf5ff; }
+        .copy-btn.copied { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+        .suggestion-text { font-size: 1.05rem; line-height: 1.55; color: #1f2937; }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .stat-box { background: #f8f9ff; border-radius: 1rem; padding: 1.5rem; text-align: center; }
@@ -846,6 +861,31 @@
         let userGender = null;
         let screenshots = [];        // array of { dataUrl, base64, mediaType }
 
+        function copySuggestion(btn) {
+            const text = btn.getAttribute('data-copy');
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerHTML = '✅ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '📋 Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.innerHTML = '✅ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '📋 Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
         function splitDataUrl(dataUrl) {
             const match = dataUrl.match(/^data:(.+?);base64,(.*)$/);
             if (!match) return null;
@@ -1197,11 +1237,17 @@
                     </div>`;
             }).join("");
 
-            const suggestionsHtml = (data.suggestions || []).map(s => `
+            const suggestionsHtml = (data.suggestions || []).map((s, i) => {
+                const safeText = (s.text || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+                return `
                 <div class="suggestion">
-                    <div class="suggestion-label">${s.label || ""}</div>
-                    ${s.text || ""}
-                </div>`).join("");
+                    <div class="suggestion-header">
+                        <div class="suggestion-label">${s.label || ""}</div>
+                        <button class="copy-btn" data-copy="${safeText}" onclick="copySuggestion(this)">📋 Copy</button>
+                    </div>
+                    <div class="suggestion-text">${s.text || ""}</div>
+                </div>`;
+            }).join("");
 
             const interest = (data.interest_level !== undefined) ? data.interest_level + "%" : "—";
             const moodEmoji = data.mood_emoji || "🙂";
